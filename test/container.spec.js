@@ -315,6 +315,37 @@ describe('container', () => {
       expect(app2.logger).toBe(instance);
     });
 
+    it('configures instance with type inheritance', () => {
+
+      class BaseClass {
+        constructor() {
+          this.message = "base";
+        }
+      }
+
+      class InheritedClass {
+        constructor() {
+          this.message = "inherited";
+        }
+      }
+
+      class DependantClass{
+        static inject() { return [BaseClass]; }
+        constructor(shouldBeInheritedClass) {
+          this.classInUse = shouldBeInheritedClass;
+        }
+      }
+
+      let container = new Container();
+      let instance = new InheritedClass();
+      container.registerInstance(BaseClass, instance);
+
+      let dependantInstance = container.get(DependantClass);
+
+      expect(dependantInstance.classInUse).toBe(instance);
+      expect(dependantInstance.classInUse.message).toBe("inherited");
+    });
+
     it('configures custom via api', () => {
       class Logger {}
 
